@@ -1,0 +1,10 @@
+version: '0.0.1'
+services:
+  my-python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: DetectBinary
+    volumes:
+      - .:/app
+    command: ["./docker-entrypoint.sh"]
