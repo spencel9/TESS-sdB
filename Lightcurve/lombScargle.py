@@ -45,9 +45,11 @@ class PeriodogramCertTimeRange:
     
     def periodogram(self, result, best_frequency_1, bounds, TICNumber, sector):
         DayDivision = 0.1
+        time1 = bounds[0].btjd
+        time2 = time1 + DayDivision
         while DayDivision != 10:
-            time1 = bounds[0].btjd
-            time2 = time1 + DayDivision
+            time1=time1
+            time2=time1+DayDivision
            
             result_subset = result[(result['time'] >= time1) & (result['time'] <= time2)]
             dy = 0.1  
@@ -55,7 +57,9 @@ class PeriodogramCertTimeRange:
 
             if (len(result_subset.time) & len(result_subset.FLUX_norm)) == 0:
                 print("The list is empty.")
-                DayDivision += 0.5
+                time1=time2
+                time2=time1+DayDivision
+                #DayDivision += 0.5
 
             else:
                 print("The list is not empty.")

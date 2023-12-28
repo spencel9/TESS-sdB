@@ -18,7 +18,7 @@ class FindingFileAndDivide:
         BJD0 = result.BJD.min()
 
         n = 0
-        for n in range(50):
+        for n in range(150):
             
             width = DayDivision #days
 
