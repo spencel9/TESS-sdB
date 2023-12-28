@@ -41,7 +41,7 @@ class AmpPhaseCalc:
                 #print('PPT' , ppt)
                 f = best_freq_1
                 bounds = ([0.0, 0.0], [100.0, 1.0])
-                popt, pcov = curve_fit(function, time, ppt, p0=param, bounds=bounds)
+                popt, pcov = curve_fit(function, time, ppt, bounds=bounds)
                
                 sigma = np.sqrt([pcov[0,0], pcov[1,1]])
 
@@ -68,6 +68,7 @@ class AmpPhaseCalc:
                 print('Error occured, no data at this point.')
                 print()
                 
+
 
                         
 class plotting:    
