@@ -29,7 +29,7 @@ class AmpPhaseCalc:
         param = [0.472786767, 0.93167]
         with open('originals.csv', 'w') as file:
             pass
-        for n in range(150):
+        for n in range(350):
             try:
                 file_a = './' + str(TICNumber) + '_' + str(sector) + '_'+ str(n) +'.csv'
                 result = pd.read_csv(file_a, names=['time','ppt'])
