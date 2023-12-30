@@ -42,8 +42,8 @@ class CalcPptFromFlux:
 class splineRemoveAndFitting:
     def removeAndFit(self, result1, TICNumber, sector):
         #spline remove and fitting
-        knot_numbers = 50
-        x_new = np.linspace(0,1,knot_numbers +2)[1:-1]
+        knot_numbers = input("What do you want the knot number to be? ")
+        x_new = np.linspace(0,1,int(knot_numbers) +2)[1:-1]
         q_knots = np.quantile(result1.time, x_new) 
         
         t,c,k = interpolate.splrep(result1.time, result1.ppt, t=q_knots, s=1)

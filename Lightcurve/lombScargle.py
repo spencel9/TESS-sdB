@@ -80,7 +80,7 @@ class PeriodogramCertTimeRange:
 
                 #plt.show()
                 best_frequency_2 = frequency_2[np.argmax(power_2)]    
-                if math.isclose(best_frequency_2, best_frequency_1, rel_tol=1):
+                if math.isclose(best_frequency_2, best_frequency_1, rel_tol=0.005):
                     print('Divide by ' + str(DayDivision) + ' days')
                     break
                 else:

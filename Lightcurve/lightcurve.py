@@ -77,7 +77,7 @@ def main():
         result1 = Stdev1.stdevremove(n, results[0], TICNumber, sector)
         result2 = calc1.calc(n, result1, TICNumber, lc_collection)
         fittingAns = input("Do you want spline fitting (Y/N)? ")
-        if (fittingAns == 'Y'):
+        if (fittingAns == 'y'):
             result3 = splineRemove1.removeAndFit(result2, TICNumber, sector)
             figures1.fittingAndPlotting(n,result3, TICNumber, sector)
             result4 = Stdev2.calcstdev(n, results[1], TICNumber, sector)
@@ -104,6 +104,7 @@ def main():
         AmpCalc.calc(TICNumber, sector, best_freq_1)
             
         plotsObj.gettingPlots(n, TICNumber, sector)
+        print(best_freq_1)
 
 class GatheringData:
     

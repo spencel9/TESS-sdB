@@ -77,8 +77,8 @@ class SplineRemoveAndFitting2:
     
     def removeAndFit(self, result2, TICNumber, sector):
        
-        knot_numbers = 50
-        x_new = np.linspace(0,1,knot_numbers +2)[1:-1]
+        knot_numbers = input("What do you want the knot number to be? ")
+        x_new = np.linspace(0,1,int(knot_numbers) +2)[1:-1]
         q_knots = np.quantile(result2.time, x_new) 
 
         t,c,k = interpolate.splrep(result2.time, result2.ppt, t=q_knots, s=1)
