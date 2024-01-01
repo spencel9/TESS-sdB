@@ -6,6 +6,7 @@ import csv
 import os
 import fnmatch
 import statistics
+from astropy.timeseries import LombScargle
 
 from Lightcurve.lightcurve import GatheringData
 from Lightcurve.lombScargle import Periodogram
@@ -72,7 +73,10 @@ class AmpPhaseCalc:
 
                         
 class plotting:    
-    def gettingPlots(self, a, TICNumber, sector):
+    
+    
+    
+    def gettingPlots(self, a, TICNumber, sector, best_freq_1):
         result = pd.read_csv('originals.csv', names=['n', 'time', 'frequency', 'amp', 'amp_err', 'phase', 'phase_err'])
 
         result['phase'] = pd.to_numeric(result['phase'], errors='coerce')
@@ -84,19 +88,46 @@ class plotting:
         result['C']=np.mean(result['O'])
         result['OC']=result['O']-result['C']
         result['OC_err']=86400*result['phase_err']/result['frequency']
-
+        
         plot = plt.figure(figsize=(15,8))
         plt.errorbar(x=result['time0'], y=result['OC'], yerr=result['OC_err'], fmt='bo')
         #filtered_x = [x for x, y in zip(result['time0'], result['OC']) if y !=0]
         #filtered_y = [y for y in result['OC'] if y != 0]
         plt.scatter(x=result['time0'], y=result['OC'], facecolor='peachpuff')
         #plt.plot(result['time0'],result['OC'], linestyle='-', color='blue')
-        plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
-        plt.tick_params(axis='both', which='major', labelsize=20)
-        plt.title('O-C result',fontsize=20)
+        #plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
+        #plt.tick_params(axis='both', which='major', labelsize=20)
+        #plt.title('O-C result',fontsize=20)
         plt.xlabel("time(days)",fontsize=20)
         plt.ylabel("O-C(s)",fontsize=20)
-        #result = pd.read_csv('./originals.csv', names=['n', 't', 'f', 'a', 'a_err', 'p', 'p_err']) 
+        
+        ls1 = LombScargle(result['time'], result['OC'], result['OC_err'])
+        #if you receive errors, you can set minimum and maximum frequencies.
+        #frequency1, power1 = ls1.autopower(minimum_frequency = 1, maximum_frequency=500)#(nyquist_factor=1)maximum_frequency=500)
+        frequency1, power1 = ls1.autopower(nyquist_factor=1)
+                                        
+        # Get the best frequency from the Lomb-Scargle periodogram
+        best_frequency1 = frequency1[np.argmax(power1)]
+        ls = LombScargle(result['time0'], result['OC'], result['OC_err'])     
+        def sinusoidal_model(t, A, omega, phi):
+            return A * np.sin(2 * np.pi * omega * t + phi)
+        time2 = np.arange(2700)/100
+        initial_guess1 = [np.sqrt(2 * ls.power(frequency=best_frequency1)), best_frequency1, 0]
+        from scipy.optimize import curve_fit
+        popt, _ = curve_fit(sinusoidal_model, result['time0'], result['OC'], p0=initial_guess1)
+        best_amplitude1, best_frequency1, best_phase1 = popt
+        best_phase_normalized1 = best_phase1 % (2 * np.pi) / (2 * np.pi)
+
+        best_fit_model1 = sinusoidal_model(time2, best_amplitude1, best_frequency1, best_phase1)
+        
+
+        #plt.scatter(x=result['time0'], y=result['OC'],linewidth=5)
+        plt.scatter(x=time2, y = best_fit_model1, linewidth=1)
+        plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
+        plt.tick_params(axis='both', which='major', labelsize=20)
+        plt.title('O-C result with sine curve',fontsize=20)
+        #plt.xlabel("time(days)",fontsize=20)
+        #plt.ylabel("O-C(s)",fontsize=20)
         plt.show()
-        plot.savefig('./SavedFigs/' + 'O-C Results_' + str(TICNumber) + '_sec_' + str(sector))
+        plot.savefig('./SavedFigs/' + 'O-C result with sine curve_' + str(TICNumber) + '_sec_' + str(sector))
         print("Program complete")

@@ -103,7 +103,7 @@ def main():
             
         AmpCalc.calc(TICNumber, sector, best_freq_1)
             
-        plotsObj.gettingPlots(n, TICNumber, sector)
+        plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1)
         print(best_freq_1)
 
 class GatheringData:
