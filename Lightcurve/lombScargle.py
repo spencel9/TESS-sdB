@@ -35,7 +35,15 @@ class Periodogram:
         #plt.show()
 
         best_frequency_1 = frequency[np.argmax(power)]
-        return best_frequency_1
+
+        half_max_power = max(power) / 2.0
+        indices = np.where(power > half_max_power)[0]
+        left_index = indices[0]
+        right_index = indices[-1]
+        fwhm = frequency[right_index] - frequency[left_index]
+        print(fwhm)
+
+        return best_frequency_1, fwhm
 
 class PeriodogramCertTimeRange:
     

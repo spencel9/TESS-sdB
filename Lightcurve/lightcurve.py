@@ -93,7 +93,7 @@ def main():
         figures2.fittingAndPlotting(n, result6, TICNumber, sector)
         combinedResults = Results1And2.combiningResults(result2, result6)
             
-        best_freq_1 = periodObj.periodogram(n, combinedResults, TICNumber, sector)
+        best_freq_1, fwhm = periodObj.periodogram(n, combinedResults, TICNumber, sector)
         DayDivision, best_freq_2 = periodCertTimeObj.periodogram(combinedResults, best_freq_1, bounds, TICNumber,sector)
             
         csv_filename = csvObj.makingCSV(n, TICNumber, sector, combinedResults, fittingAns)
@@ -104,7 +104,7 @@ def main():
         AmpCalc.calc(TICNumber, sector, best_freq_1)
             
         plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1)
-        print(best_freq_1)
+    print('Program complete')
 
 class GatheringData:
     
@@ -172,12 +172,8 @@ class DividingDataInTwo:
         Start = lc_collection.time[0]
         Finish = lc_collection.time[-1]
 
-        print(Start)
-        print(Finish)
-
         TimeWithoutFlux = ((Finish - Start)/2) + Start
         
-        print (TimeWithoutFlux)
         Times = [Start,TimeWithoutFlux,Finish]
         
         return Times
@@ -189,11 +185,7 @@ class DividingDataInTwo:
         a = bounds[0].btjd
         b = bounds[1].btjd
         c = bounds[2].btjd
-        print()
-        print(a)
-        print(b)
-        print(c)
-        print()
+        
         result1 = result[(result['time']>=a) & (result['time']<=b)] 
         result1.plot.scatter(x='time', y = 'pdcsap_flux', title = TICNumber + 'raw result 1 (first half)')
         save_dir = './SavedFigs'

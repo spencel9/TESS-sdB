@@ -111,7 +111,8 @@ class plotting:
         ls = LombScargle(result['time0'], result['OC'], result['OC_err'])     
         def sinusoidal_model(t, A, omega, phi):
             return A * np.sin(2 * np.pi * omega * t + phi)
-        time2 = np.arange(2700)/100
+        last_index = len(result) - 1 
+        time2 = np.arange(result['time'][last_index])/100
         initial_guess1 = [np.sqrt(2 * ls.power(frequency=best_frequency1)), best_frequency1, 0]
         from scipy.optimize import curve_fit
         popt, _ = curve_fit(sinusoidal_model, result['time0'], result['OC'], p0=initial_guess1)
@@ -120,7 +121,19 @@ class plotting:
 
         best_fit_model1 = sinusoidal_model(time2, best_amplitude1, best_frequency1, best_phase1)
         
-
+        popt, pcov = curve_fit(sinusoidal_model, result['time'], result['OC'], p0=initial_guess1)
+        sigma = np.sqrt([pcov[0,0], pcov[1,1], pcov[2,2]])
+        
+        # Extract amplitude and phase from the fit
+        best_amplitude1, best_frequency1, best_phase1 = popt
+        best_amplitude1_err, best_frequency1_err, best_phase1_err = sigma
+        print('Frequency (1/days): ' + str(best_freq_1))
+        print('Frequency (cycles/day): ' + str(best_frequency1))
+        print('Frequency error: ' + str(best_frequency1_err))
+        period = 1/best_frequency1
+        print('Period (days): ' + str(period))
+        period_uncertainty = period*(best_frequency1_err/best_frequency1)
+        print('Period uncertainty: ' + str(period_uncertainty))
         #plt.scatter(x=result['time0'], y=result['OC'],linewidth=5)
         plt.scatter(x=time2, y = best_fit_model1, linewidth=1)
         plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
@@ -130,4 +143,4 @@ class plotting:
         #plt.ylabel("O-C(s)",fontsize=20)
         plt.show()
         plot.savefig('./SavedFigs/' + 'O-C result with sine curve_' + str(TICNumber) + '_sec_' + str(sector))
-        print("Program complete")
+    
