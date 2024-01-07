@@ -137,6 +137,14 @@ class plotting:
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
             print('Day Division: ' + str(DayDivision))
+            add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
+            df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
+            with open ('./TIC_' + str(TICNumber) + '_sec' + str(sector) + '_information.csv', 'w') as file:
+                writer = csv.writer (file, lineterminator='\n')
+                writer.writerow(df.columns)
+                for ary in df.values:
+                    writer.writerow(ary)
+
             #plt.scatter(x=result['time0'], y=result['OC'],linewidth=5)
             plt.scatter(x=time2, y = best_fit_model1, linewidth=1)
             plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
@@ -205,6 +213,15 @@ class plotting:
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
             print('Day Division: ' + str(DayDivision))
+            
+            add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
+            df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
+            with open ('./TIC_' + str(TICNumber) + '_sec' + str(sector) + '_information.csv', 'w') as file:
+                writer = csv.writer (file, lineterminator='\n')
+                writer.writerow(df.columns)
+                for ary in df.values:
+                    writer.writerow(ary)
+            
             #plt.scatter(x=result['time0'], y=result['OC'],linewidth=5)
             #plt.scatter(x=time2, y = best_fit_model1, linewidth=1)
             plt.ylim(np.min(result['OC'])-30,np.max(result['OC'])+30)
