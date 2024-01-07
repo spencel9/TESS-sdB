@@ -61,13 +61,25 @@ def main():
     #the running of the code
     Number = int(input('Enter the Target Number only: '))
     TICNumber = 'TIC' + str(Number)
+    try:
+        specific_sec = int(input('Any sector in specific (just the number)? If not enter n: '))
+    except ValueError:
+        specific_sec = 'n'
+    if(specific_sec == 'n'):
+        DownloadableFiles = GettingData.SearchResult(TICNumber, ExposureTime = 20)
+        lc_collection = GettingData.DownloadingData(DownloadableFiles)
+        SecNum = GettingNumberOfSectors.SectorCalc()
+        print('Number of sectors: ' + str(SecNum-1))
+    else:
+        DownloadableFiles = GettingData.SearchResultSector(TICNumber, ExposureTime = 20, sector = specific_sec)
+        lc_collection = GettingData.DownloadingData(DownloadableFiles)
+        SecNum = 2
+        print('Number of sectors: ' + str(SecNum-1))
+        
     
-    DownloadableFiles = GettingData.SearchResult(TICNumber, ExposureTime = 20)
-    lc_collection = GettingData.DownloadingData(DownloadableFiles)
     
 
-    SecNum = GettingNumberOfSectors.SectorCalc()
-    print('Number of sectors: ' + str(SecNum-1))
+    
     result = ResultTable.MakingTable(lc_collection)
     ResultTable.SectorPlot(SecNum, lc_collection)
     for n in range (SecNum-1):
@@ -103,7 +115,7 @@ def main():
             
         AmpCalc.calc(TICNumber, sector, best_freq_1)
             
-        plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1)
+        plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1, DayDivision)
     print('Program complete')
 
 class GatheringData:
@@ -119,6 +131,12 @@ class GatheringData:
         DownloadableFiles = lk.search_lightcurve(target = Target, exptime = ExposureTime)
         print(DownloadableFiles)
         return DownloadableFiles
+    def SearchResultSector(self, Target,  ExposureTime, sector):
+        ExposureTime = 20
+        DownloadableFiles = lk.search_lightcurve(target = Target, exptime = ExposureTime, sector = sector)
+        print(DownloadableFiles)
+        return DownloadableFiles
+
     
     def DownloadingData(self, Downloadablefiles):
         lc_collection = Downloadablefiles.download_all()

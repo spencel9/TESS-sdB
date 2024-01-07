@@ -93,7 +93,7 @@ class PeriodogramCertTimeRange:
                     break
                 else:
                     print('Cannot be divided by ' + str(DayDivision) + ' days (10 is max)')
-                    DayDivision += 0.5
+                    DayDivision += 0.1
 
             
         return DayDivision, best_frequency_2
