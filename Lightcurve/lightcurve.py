@@ -86,9 +86,12 @@ def main():
         bounds = DivideData.GettingBounds(n, lc_collection[n]) 
         results = SplittingData.SplittingInHalf(bounds, n, result, lc_collection, TICNumber)
         sector = lc_collection[n].sector
+        sectorNumber = lc_collection[0].sector
         result1 = Stdev1.stdevremove(n, results[0], TICNumber, sector)
         result2 = calc1.calc(n, result1, TICNumber, lc_collection)
         fittingAns = input("Do you want spline fitting (Y/N)? ")
+        while (fittingAns != 'y' and fittingAns != 'Y' and fittingAns != 'n' and fittingAns != 'N'):
+            fittingAns = input('Entered value was incorrect, please try again: ')
         if (fittingAns == 'y'):
             result3 = splineRemove1.removeAndFit(result2, TICNumber, sector)
             figures1.fittingAndPlotting(n,result3, TICNumber, sector)
@@ -104,23 +107,53 @@ def main():
         result6 = Calc2.calculation(n, result5, TICNumber, sector)
         figures2.fittingAndPlotting(n, result6, TICNumber, sector)
         combinedResults = Results1And2.combiningResults(result2, result6)
-            
-        best_freq_1, fwhm = periodObj.periodogram(n, combinedResults, TICNumber, sector)
-        DayDivision, best_freq_2 = periodCertTimeObj.periodogram(combinedResults, best_freq_1, bounds, TICNumber,sector)
-            
-        csv_filename = csvObj.makingCSV(n, TICNumber, sector, combinedResults, fittingAns)
-            
-        fileAndDivideObj.findfile(csv_filename)
-        fileAndDivideObj.DivideWithFile(n, csv_filename, DayDivision, TICNumber, sector, best_freq_1,best_freq_2)
-            
-        AmpCalc.calc(TICNumber, sector, best_freq_1)
-            
-        plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1, DayDivision)
+        if (n>0):
+            char = input('Would you like to use the frequency from first sector (y/n)?')
+            while (char != 'y' and char != 'Y' and char != 'n' and char != 'N'):
+                char = input('Entered value was incorrect, please try again: ')
+            if(char == 'y' or char == 'Y'):
+                file_a = './TIC_' + str(TICNumber) + '_sec' + str(sectorNumber) + '_information' +'.csv'
+                result = pd.read_csv(file_a, skiprows=1, names=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
+                best_freq_1=result['Frequency (1/days)'].iloc[0]
+                DayDivision = result['Day Division'].iloc[0]
+                
+                csv_filename = csvObj.makingCSV(n, TICNumber, sector, combinedResults, fittingAns)
+                    
+                fileAndDivideObj.findfile(csv_filename)
+                fileAndDivideObj.DivideWithFile(n, csv_filename, DayDivision, TICNumber, sector, best_freq_1,best_freq_2)
+                    
+                AmpCalc.calc(TICNumber, sector, best_freq_1)
+                    
+                plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1, DayDivision)  
+            else:
+                best_freq_1, fwhm = periodObj.periodogram(n, combinedResults, TICNumber, sector)
+                DayDivision, best_freq_2 = periodCertTimeObj.periodogram(combinedResults, best_freq_1, bounds, TICNumber,sector)
+                        
+                csv_filename = csvObj.makingCSV(n, TICNumber, sector, combinedResults, fittingAns)
+                        
+                fileAndDivideObj.findfile(csv_filename)
+                fileAndDivideObj.DivideWithFile(n, csv_filename, DayDivision, TICNumber, sector, best_freq_1,best_freq_2)
+                        
+                AmpCalc.calc(TICNumber, sector, best_freq_1)
+                        
+                plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1, DayDivision)
+        else:
+            best_freq_1, fwhm = periodObj.periodogram(n, combinedResults, TICNumber, sector)
+            DayDivision, best_freq_2 = periodCertTimeObj.periodogram(combinedResults, best_freq_1, bounds, TICNumber,sector)
+                        
+            csv_filename = csvObj.makingCSV(n, TICNumber, sector, combinedResults, fittingAns)
+                        
+            fileAndDivideObj.findfile(csv_filename)
+            fileAndDivideObj.DivideWithFile(n, csv_filename, DayDivision, TICNumber, sector, best_freq_1,best_freq_2)
+                        
+            AmpCalc.calc(TICNumber, sector, best_freq_1)
+                        
+            plotsObj.gettingPlots(n, TICNumber, sector, best_freq_1, DayDivision)
     print('Program complete')
 
 class GatheringData:
     
-    IDNumber = 273218137
+    IDNumber = 2
     Target = 'TIC' + str(IDNumber)
     TICNumber = 'TIC_' + str(IDNumber)
     ExposureTime = 20
