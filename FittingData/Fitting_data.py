@@ -28,11 +28,13 @@ class AmpPhaseCalc:
             return a * np.sin(2*np.pi*(best_freq_1*time+p))
         #f=best_freq_1
         print('Frequency = ' + str(best_freq_1))
-        param = [0.472786767, 0.93167]
+        param = [249.999183, 0.156946]
+        #param = [0.472786767, 0.93167]
         with open('originals.csv', 'w') as file:
             pass
         for n in range(350):
             try:
+                #(str(TICNumber) + '_'+ str(sector) + '_'+ str(n) +'.csv')
                 file_a = './' + str(TICNumber) + '_' + str(sector) + '_'+ str(n) +'.csv'
                 result = pd.read_csv(file_a, names=['time','ppt'])
                 
@@ -43,7 +45,7 @@ class AmpPhaseCalc:
                 #print('PPT' , ppt)
                 f = best_freq_1
                 bounds = ([0.0, 0.0], [100.0, 1.0])
-                popt, pcov = curve_fit(function, time, ppt, bounds=bounds)
+                popt, pcov = curve_fit(function, time, ppt, bounds=bounds, absolute_sigma=True)
                
                 sigma = np.sqrt([pcov[0,0], pcov[1,1]])
 
@@ -74,9 +76,6 @@ class AmpPhaseCalc:
 
                         
 class plotting:    
-    
-    
-    
     def gettingPlots(self, a, TICNumber, sector, best_freq_1, DayDivision):
         sine_curve_input = input('Would you like a reference sine curve on the O-C Diagram (y/n)? ')
         while(sine_curve_input != 'n' and sine_curve_input != 'y' and sine_curve_input != 'N' and sine_curve_input != 'Y'):
@@ -84,7 +83,9 @@ class plotting:
         linear_fit = input('Would you like a linear fit removal (y/n)?')
         while(linear_fit != 'n' and linear_fit != 'y' and linear_fit != 'N' and linear_fit != 'Y'):
             linear_fit = input('Entered value for linear fit removal was not n or y, please try again. ')
-        
+        result = pd.read_csv('originals.csv', names=['n', 'time', 'frequency', 'amp', 'amp_err', 'phase', 'phase_err'])
+       
+
         if((linear_fit == 'y' or linear_fit == 'Y') and (sine_curve_input == 'y' or sine_curve_input == 'y')):
             result = pd.read_csv('originals.csv', names=['n', 'time', 'frequency', 'amp', 'amp_err', 'phase', 'phase_err'])
 
@@ -115,7 +116,7 @@ class plotting:
             def fit_funct(a, x, b):
                 return a*x+b
             from scipy.optimize import curve_fit
-            params = curve_fit(fit_funct, result['time0'], result['OC'])
+            params = curve_fit(fit_funct, result['time0'], result['OC'], absolute_sigma=True)
             [a,b] = params[0]
             fit_remove = fit_funct(a, result['time0'], b)
             new_result = result['OC'] - fit_remove
@@ -158,6 +159,8 @@ class plotting:
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
             print('Day Division: ' + str(DayDivision))
+            print('Amplitude: ' + str(best_amplitude1))
+            print('Amplitude Error: ' + str(best_amplitude1_err))
             
             add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
             df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
@@ -171,13 +174,13 @@ class plotting:
             plt.errorbar(x=result['time0'], y=new_result, yerr=result['OC_err'], fmt='bo')
             plt.scatter(x=time2, y = best_fit_model1, linewidth=1)
             plt.ylim(np.min(new_result)-30,np.max(new_result)+30)
-
             
             plt.xlim(result['time0'][0], result['time0'][last_index])
             plt.tick_params(axis='both', which='major', labelsize=20)
             plt.title('O-C result with sine curve',fontsize=20)
             #plt.xlabel("time(days)",fontsize=20)
             #plt.ylabel("O-C(s)",fontsize=20)
+            
             plt.show()
             plot.savefig('./SavedFigs/' + 'O-C result_' + str(TICNumber) + '_sec_' + str(sector))
         
@@ -194,6 +197,8 @@ class plotting:
             result['OC']=result['C']-result['O']
             result['OC_err']=86400*result['phase_err']/result['frequency']
             
+            print('Ha')
+
             plot = plt.figure(figsize=(15,8))
             plt.errorbar(x=result['time0'], y=result['OC'], yerr=result['OC_err'], fmt='bo')
             #filtered_x = [x for x, y in zip(result['time0'], result['OC']) if y !=0]
@@ -226,7 +231,7 @@ class plotting:
 
             best_fit_model1 = sinusoidal_model(time2, best_amplitude1, best_frequency1, best_phase1)
             
-            popt, pcov = curve_fit(sinusoidal_model, result['time'], result['OC'], p0=initial_guess1)
+            popt, pcov = curve_fit(sinusoidal_model, result['time'], result['OC'], p0=initial_guess1, absolute_sigma=True)
             sigma = np.sqrt([pcov[0,0], pcov[1,1], pcov[2,2]])
             
             # Extract amplitude and phase from the fit
@@ -240,6 +245,9 @@ class plotting:
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
             print('Day Division: ' + str(DayDivision))
+            print('Amplitude: ' + str(best_amplitude1))
+            print('Amplitude Error: ' + str(best_amplitude1_err))
+
             add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
             df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
             with open ('./TIC_' + str(TICNumber) + '_sec' + str(sector) + '_information.csv', 'w') as file:
@@ -257,6 +265,7 @@ class plotting:
             plt.title('O-C result with sine curve',fontsize=20)
             #plt.xlabel("time(days)",fontsize=20)
             #plt.ylabel("O-C(s)",fontsize=20)
+            #plt.scatter(x=result['time0'], y = result['amp'], linewidth = 5)
             plt.show()
             plot.savefig('./SavedFigs/' + 'O-C result with sine curve_' + str(TICNumber) + '_sec_' + str(sector))
         elif((linear_fit == 'y' or linear_fit == 'Y') and (sine_curve_input == 'n' or sine_curve_input == 'N')):
@@ -318,7 +327,7 @@ class plotting:
             best_phase_normalized1 = best_phase1 % (2 * np.pi) / (2 * np.pi)
 
             
-            popt255, pcov = curve_fit(sinusoidal_model, result['time'], new_result, p0=initial_guess1)
+            popt255, pcov = curve_fit(sinusoidal_model, result['time'], new_result, p0=initial_guess1, absolute_sigma=True)
             sigma24 = np.sqrt([pcov[0,0], pcov[1,1], pcov[2,2]])
             
             # Extract amplitude and phase from the fit
@@ -332,6 +341,8 @@ class plotting:
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
             print('Day Division: ' + str(DayDivision))
+            print('Amplitude: ' + str(best_amplitude1))
+            print('Amplitude Error: ' + str(best_amplitude1_err))
             
             add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
             df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
@@ -352,6 +363,7 @@ class plotting:
             plt.title('O-C result with sine curve',fontsize=20)
             #plt.xlabel("time(days)",fontsize=20)
             #plt.ylabel("O-C(s)",fontsize=20)
+            #plt.scatter(x=result['time0'], y = result['amp'], linewidth = 5)
             plt.show()
             plot.savefig('./SavedFigs/' + 'O-C result_' + str(TICNumber) + '_sec_' + str(sector))
         else:
@@ -399,7 +411,7 @@ class plotting:
 
             best_fit_model1 = sinusoidal_model(time2, best_amplitude1, best_frequency1, best_phase1)
             
-            popt, pcov = curve_fit(sinusoidal_model, result['time'], result['OC'], p0=initial_guess1)
+            popt, pcov = curve_fit(sinusoidal_model, result['time'], result['OC'], p0=initial_guess1, absolute_sigma=True)
             sigma = np.sqrt([pcov[0,0], pcov[1,1], pcov[2,2]])
             
             # Extract amplitude and phase from the fit
@@ -412,7 +424,9 @@ class plotting:
             print('Period (days): ' + str(period))
             period_uncertainty = period*(best_frequency1_err/best_frequency1)
             print('Period uncertainty: ' + str(period_uncertainty))
-            print('Day Division: ' + str(DayDivision))
+            print('Amplitude: ' + str(best_amplitude1))
+            print('Amplitude Error: ' + str(best_amplitude1_err))
+            
             add = np.array ([best_freq_1, best_frequency1, best_frequency1_err, period, period_uncertainty, DayDivision]).reshape(1,6)
             df = pd.DataFrame(add, columns=['Frequency (1/days)', 'Frequency (cycles/day)', 'Frequency error', 'Period (days)', 'Period uncertainty', 'Day Division'])
             with open ('./TIC_' + str(TICNumber) + '_sec' + str(sector) + '_information.csv', 'w') as file:
@@ -430,5 +444,9 @@ class plotting:
             plt.title('O-C result with sine curve',fontsize=20)
             #plt.xlabel("time(days)",fontsize=20)
             #plt.ylabel("O-C(s)",fontsize=20)
+            #plt.scatter(x=result['time0'], y = result['amp'], linewidth = 5)
+
+
             plt.show()
             plot.savefig('./SavedFigs/' + 'O-C result with sine curve_' + str(TICNumber) + '_sec_' + str(sector))
+
