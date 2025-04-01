@@ -19,6 +19,7 @@ class removeLargeStdDev:
         result1 = result1[result1['pdcsap_flux'] >= b]
         result1.plot.scatter(x = 'time', y = 'pdcsap_flux')
 
+
         save_dir = './SavedFigs'
         os.makedirs(save_dir, exist_ok=True)
         fileName = str(TICNumber) +'_'+ str(sector) +'_'+ 'result1'
@@ -34,7 +35,7 @@ class CalcPptFromFlux:
 
         save_dir = './SavedFigs'
         os.makedirs(save_dir, exist_ok=True)
-        fileName = str(TICNumber) + '_'+str(lc_collection[n].sector) +'_'+ 'result 1 normalized_ppt'
+        fileName = str(TICNumber) + '_'+'No scetor :)' +'_'+ 'result 1 normalized_ppt'
         plt.savefig(os.path.join(save_dir, fileName))
         return result1
 

@@ -13,12 +13,18 @@ class FindingFileAndDivide:
                 print(file)
                 csv_filename = file
     
+
+
     def DivideWithFile(self, a, csv_filename, DayDivision, TICNumber, sector, best_freq_1, best_freq_2):
-        result = pd.read_csv(csv_filename, names=['BJD','FLUX_norm']) 
+        result = pd.read_csv(csv_filename, names=['BJD','pdcsap_flux']) ####Was FLUX_norm
         BJD0 = result.BJD.min()
+        range_max = int((result.BJD.max() - BJD0)/DayDivision)
+
+        print(range_max)
+
 
         n = 0
-        for n in range(350):
+        for n in range(range_max):
             
             width = DayDivision #days
 
@@ -26,7 +32,7 @@ class FindingFileAndDivide:
             BJD2 = BJD1+width
             result_f1 = result[result['BJD']>=BJD1] 
             result_f2 = result_f1[result_f1['BJD']<=BJD2] 
-            result_f3 = pd.DataFrame({'BJD':result_f2.BJD, 'FLUX':result_f2.FLUX_norm}) ### get only the info you want 
+            result_f3 = pd.DataFrame({'BJD':result_f2.BJD, 'FLUX':result_f2.pdcsap_flux}) ### get only the info you want ###Was FLUX_norm
             
             save_dir = './SavedData/'
             os.makedirs(save_dir, exist_ok=True)
@@ -54,3 +60,5 @@ class FindingFileAndDivide:
                 for ary in df.values:
                     writer.writerow(ary)
             n=+1
+            
+        return range_max
