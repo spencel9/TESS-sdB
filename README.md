@@ -31,9 +31,9 @@ For MacOS and Windows:
 1. Open Terminal and navigate to the directory that all files from this repository was downloaded in
 2. Run the following command in the terminal
 
-'''
+```
 pip install -r requirements.txt
-'''
+```
 
 3. Celebrate!
 
