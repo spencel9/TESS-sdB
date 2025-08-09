@@ -56,6 +56,8 @@ pip install -r requirements.txt
 
 ### Artificial Data Branch
 
+This branch is an extension of main branch of the code. The purpose of this branch is to generate artificial data to test theoretical situations. This branch includes an additional Python script that generates a csv file with artificial data created from the parameters the user appends to the Python script that generates the csv. The main code in the Artificial Data branch then uses this csv to generate O-C Diagrams. In order for the main code in this branch to work, the user must ensure the file name of the csv file matches the one the user generated with the included Python script.
+
 
 ## Additional Comments
 
